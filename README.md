@@ -119,11 +119,12 @@ Django-Environ, installed and imported as `environ`, is a third party package th
 
 The `settings.py` file that Django automatically generates for you utilizes a `sqlite3` database, but that's not ideal for production because data stores should be treated as attached resources. Using the sqlite database means that all your data will disappear on each deploy and dyno restart!
 
-Luckily, Heroku automatically provisions you a Postgres database and supplies it's connection via config var when you create a new Heroku app. Our friend `environ` can pull the database environment variable that Heroku automatically gives so that our application can permanently store data with minimal fuss.
+Luckily, Heroku can provision you a Postgres database and supplies it's connection via config var when you create a new Heroku app. Our friend `environ` can pull the database environment variable that Heroku automatically gives so that our application can permanently store data with minimal fuss.  We'll be doing that later after creating the app.
 
 ### 4.c Speaking of Databases
 
-You'll also see in our `requirements.txt` file that we have [`psycopg2`](http://initd.org/psycopg/docs/). This is a helper package and while it requires no code setup, it's crucial to include (and keep up to date) to use the Postgres databases supplied by Heroku.
+You'll also see in our `requirements.txt` file that we have [`psycopg2`](http://initd.org/psycopg/docs/). This is a helper package and while it requires no code setup, it's crucial to include (and keep up to date) to use the Postgres databases supplied by Heroku.  If you install the requirements locally, you will need to have a copy of postgresql 
+installed as well for it to work right.
 
 ### 4.d Speaking of Dependencies
 
@@ -171,6 +172,12 @@ This app will receive your codebase as a slug. It's where all the environment va
 
 Before moving on, go ahead and grab the name of your site - it'll be something like `serene-caverns-99999.com`. 
 
+Now add and provision the database with the command:
+
+```
+heroku addons:create heroku-postgresql:hobby-dev`
+```
+
 ## Heroku Config
 
 Before we push the code up, let's set the config vars (or we'll see errors!)
@@ -178,18 +185,18 @@ Before we push the code up, let's set the config vars (or we'll see errors!)
 You can remind yourself what environment variables we need by looking at your `heroku.py` file, but to get this project ready to run, you can use the CLI `heroku config` command.
 
 ```
-heroku config ALLOWED_HOSTS=your-app-name.com
-heroku config DJANGO_SETTINGS_MODULE=dynowiki.settings.heroku
+heroku config:set ALLOWED_HOSTS=your-app-name.com
+heroku config:set DJANGO_SETTINGS_MODULE=dynowiki.settings.heroku
 ```
 For the SECRET_KEY, you'll need to generate a new secret. For this demo, it doesn't matter what it is - it's great to use a secure hash generator, or a password manager's generator. Just be sure to keep this value secure, don't reuse it, and NEVER check it into source code!
 
 ```
-heroku config SECRET_KEY=YOURSECUREGENERATEDPASSWORD
+heroku config:set SECRET_KEY=YOURSECUREGENERATEDPASSWORD
 ```
 Lastly, Heroku will automatically detect the number of concurrent processes you want to run on each dyno. Depending on the resource usage of your process, this can make each dyno handle more requests more quickly - but for now, let's stick to one process.
 
 ```
-heroku config WEB_CONCURRENCY=1
+heroku config:set WEB_CONCURRENCY=1
 ```
 
 ## Heroku Deploy
